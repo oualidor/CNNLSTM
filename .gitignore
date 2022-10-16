@@ -1,5 +1,4 @@
-data/*
-arabicRawData/*
+
 src/__pycache__/
 notes/
 *.so
