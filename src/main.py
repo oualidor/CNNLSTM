@@ -15,7 +15,7 @@ class FilePaths:
     """Filenames and paths to data."""
     fn_char_list = '../model/charList.txt'
     fn_summary = '../model/summary.json'
-    fn_corpus = '../data/corpus.txt'
+    fn_corpus = 'corpus.txt'
 
 
 def get_img_height() -> int:
@@ -47,7 +47,7 @@ def train(model: Model,
           early_stopping: int = 25) -> None:
 
     """Trains NN."""
-    os.system('clear')
+
     epoch = 0  # number of training epochs since start
     summary_char_error_rates = []
     summary_word_accuracies = []
@@ -59,14 +59,11 @@ def train(model: Model,
 
         epoch += 1
         print('Epoch:', epoch)
-
         # train
-        print('Train NN')
         loader.train_set()
         while loader.has_next():
             iter_info = loader.get_iterator_info()
             batch = loader.get_next()
-
             batch = preprocessor.process_batch(batch)
             loss = model.train_batch(batch)
             print(f'Epoch: {epoch} Batch: {iter_info[0]}/{iter_info[1]} Loss: {loss}')

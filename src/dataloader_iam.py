@@ -1,3 +1,4 @@
+import os
 import pickle
 import random
 from collections import namedtuple
@@ -7,6 +8,21 @@ import cv2
 import lmdb
 import numpy as np
 from path import Path
+import xml.etree.ElementTree as ET
+
+
+def textFromXmlFile(xmlFilePath):
+    tree = ET.parse(xmlFilePath)
+    root = tree.getroot()
+    text = root[0].text
+    textList = list(text)
+    i = 0
+    for letter in textList:
+        if letter == ' ':
+            textList[i] = '|'
+        i = i + 1
+    return ''.join(textList)
+
 
 Sample = namedtuple('Sample', 'gt_text, file_path')
 Batch = namedtuple('Batch', 'imgs, gt_texts, batch_size')
@@ -37,7 +53,8 @@ class DataLoaderIAM:
         self.samples = []
 
         bad_samples_reference = ['a01-117-05-02', 'r06-022-03-05']  # known broken images in IAM dataset
-        self.char_list, self.samples = self.loadImages2(data_dir, bad_samples_reference)
+        # self.char_list, self.samples = self.loadAlifImages(data_dir, '/media/droualid/Bibliotheque/Doctorat/Data/ALiF/md_alif_train/')
+        self.char_list, self.samples = self.loadImagesMultiFolders(data_dir, bad_samples_reference)
 
         # split into training and validation set: 95% - 5%
         split_idx = int(data_split * len(self.samples))
@@ -57,55 +74,55 @@ class DataLoaderIAM:
     def loadImages(self, data_dir, bad_samples_reference):
         samples = []
         chars = set()
-        f = open(data_dir / 'gt/words.txt')
-
-
-        for line in f:
-            # ignore empty and comment lines
-            line = line.strip()
-            if not line or line[0] == '#':
-                continue
-
-            line_split = line.split(' ')
-            assert len(line_split) >= 9
-
-            # filename: part1-part2-part3 --> part1/part1-part2/part1-part2-part3.png
-            file_name_split = line_split[0].split('-')
-            file_name_subdir1 = file_name_split[0]
-            file_name_subdir2 = f'{file_name_split[0]}-{file_name_split[1]}'
-            file_base_name = line_split[0] + '.png'
-            file_name = data_dir / 'img' / file_name_subdir1 / file_name_subdir2 / file_base_name
-
-            if line_split[0] in bad_samples_reference:
-                print('Ignoring known broken image:', file_name)
-                continue
-
-            # GT text are columns starting at 9
-            gt_text = ' '.join(line_split[8:])
-            chars = chars.union(set(list(gt_text)))
-
-            # put sample into list
-            samples.append(Sample(gt_text, file_name))
-        return chars, samples
-
-    def loadImages2(self, data_dir, bad_samples_reference):
-        samples = []
-        chars = set()
-        f = open(data_dir / 'gt/words.txt')
+        f = open('wordsToDraw.txt')
+        i = 0
         for line in f:
             line = line.split(',')  # ignore empty and comment lines
             if not line or line[0] == '#':
                 continue
-
-            path = line[0]
-            text = line[1]
-            chars = chars.union(set(list(text)))
-            path = data_dir + '/'+path
-
-
-
-            # put sample into list
+            path = data_dir + '/' + str(i) + '.png'
+            text = ''.join(line)
+            text = text[0:len(text) - 1]
             samples.append(Sample(text, path))
+            chars = chars.union(set(list(text)))
+            i = i + 1
+        return chars, samples
+
+    @staticmethod
+    def loadImagesMultiFolders(data_dir, bad_samples_reference):
+        samples = []
+        chars = set()
+        fontsDir = os.listdir(data_dir)
+        for dirName in fontsDir:
+            print(dirName)
+            currentDir = data_dir + dirName + '/'
+            i = 0
+            wordsFile = open('wordsToDraw.txt')
+            for line in wordsFile:
+                line = line.split(',')  # ignore empty and comment lines
+                if not line or line[0] == '#':
+                    continue
+                path = currentDir + str(i) + '.png'
+                text = ''.join(line)
+                text = text[0:len(text) - 1]
+                samples.append(Sample(text, path))
+                chars = chars.union(set(list(text)))
+                i = i + 1
+            wordsFile.close()
+        return chars, samples
+
+    @staticmethod
+    def loadAlifImages(imgsDir, xmlDir):
+        samples = []
+        chars = set()
+        images = os.listdir(imgsDir)
+        xmlFiles = os.listdir(xmlDir)
+        for image in images:
+            imagePath = imgsDir + image
+            xmlFilePath = xmlDir + image[0:len(image) - 4] + '.xml'
+            text = textFromXmlFile(xmlFilePath)
+            samples.append(Sample(text, imagePath))
+            chars = chars.union(set(list(text)))
         print(samples[0])
         return chars, samples
 
@@ -159,3 +176,4 @@ class DataLoaderIAM:
         gt_texts = [self.samples[i].gt_text for i in batch_range]
         self.curr_idx += self.batch_size
         return Batch(imgs, gt_texts, len(imgs))
+

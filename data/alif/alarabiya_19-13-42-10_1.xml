@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<textImage id="1" width="57" height="40" transcription="العراق" image="alarabiya_19-13-42-10_1">
+  <ArabicTranscription>العراق</ArabicTranscription>
+  <LatinTranscription>Alif_I Laam_B Ayn_M Raa_E Alif_I Gaaf_I</LatinTranscription>
+  <content>
+    <word idWord="1" x="0" transcription="العراق" LatinTrans="Alif_I Laam_B Ayn_M Raa_E Alif_I Gaaf_I">
+      <paw idPaw="1" x="48" transcription="ا" LatinTrans="Alif_I">
+        <lettre idLettre="1" x="48" transcription="ا" LatinTrans="Alif_I" />
+      </paw>
+      <paw idPaw="2" x="23" transcription="لعر" LatinTrans="Laam_B Ayn_M Raa_E">
+        <lettre idLettre="1" x="42" transcription="ل" LatinTrans="Laam_B" />
+        <lettre idLettre="2" x="31" transcription="ع" LatinTrans="Ayn_M" />
+        <lettre idLettre="3" x="23" transcription="ر" LatinTrans="Raa_E" />
+      </paw>
+      <paw idPaw="3" x="18" transcription="ا" LatinTrans="Alif_I">
+        <lettre idLettre="1" x="18" transcription="ا" LatinTrans="Alif_I" />
+      </paw>
+      <paw idPaw="4" x="0" transcription="ق" LatinTrans="Gaaf_I">
+        <lettre idLettre="1" x="0" transcription="ق" LatinTrans="Gaaf_I" />
+      </paw>
+    </word>
+  </content>
+</textImage>
