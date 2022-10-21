@@ -30,10 +30,13 @@ def get_img_size(line_mode: bool = False) -> Tuple[int, int]:
     return 128, get_img_height()
 
 
-def write_summary(char_error_rates: List[float], word_accuracies: List[float]) -> None:
+def write_summary(char_error_rates: List[float], word_accuracies: List[float], EpochesLosses) -> None:
+    print(EpochesLosses)
     """Writes training summary file for NN."""
     with open(FilePaths.fn_summary, 'w') as f:
-        json.dump({'charErrorRates': char_error_rates, 'wordAccuracies': word_accuracies}, f)
+        json.dump({'charErrorRates': char_error_rates, 'wordAccuracies': word_accuracies, 'EpochsResult': EpochesLosses}, f)
+
+
 
 
 def char_list_from_file() -> List[str]:
@@ -51,6 +54,7 @@ def train(model: Model,
     epoch = 0  # number of training epochs since start
     summary_char_error_rates = []
     summary_word_accuracies = []
+    EpochLosses = []
     preprocessor = Preprocessor(get_img_size(line_mode), data_augmentation=True, line_mode=line_mode)
     best_char_error_rate = float('inf')  # best validation character error rate
     no_improvement_since = 0  # number of epochs no improvement of character error rate occurred
@@ -61,20 +65,23 @@ def train(model: Model,
         print('Epoch:', epoch)
         # train
         loader.train_set()
+        EpochLoss = []
         while loader.has_next():
             iter_info = loader.get_iterator_info()
             batch = loader.get_next()
             batch = preprocessor.process_batch(batch)
             loss = model.train_batch(batch)
             print(f'Epoch: {epoch} Batch: {iter_info[0]}/{iter_info[1]} Loss: {loss}')
+            EpochLoss.append(float(loss))
+
 
         # validate
         char_error_rate, word_accuracy = validate(model, loader, line_mode)
-
         # write summary
         summary_char_error_rates.append(char_error_rate)
         summary_word_accuracies.append(word_accuracy)
-        write_summary(summary_char_error_rates, summary_word_accuracies)
+        EpochLosses.append(EpochLoss)
+        write_summary(summary_char_error_rates, summary_word_accuracies, EpochLosses)
 
         # if best validation accuracy so far, save model parameters
         if char_error_rate < best_char_error_rate:
