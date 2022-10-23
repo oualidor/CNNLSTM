@@ -114,9 +114,12 @@ def validate(model: Model, loader: DataLoaderIAM, line_mode: bool) -> Tuple[floa
     num_char_total = 0
     num_word_ok = 0
     num_word_total = 0
+    result = open('result.txt', 'w')
     while loader.has_next():
         iter_info = loader.get_iterator_info()
         print(f'Batch: {iter_info[0]} / {iter_info[1]}')
+        result.write(f'Batch: {iter_info[0]} / {iter_info[1]}')
+        result.write('\n')
         batch = loader.get_next()
         batch = preprocessor.process_batch(batch)
         recognized, _ = model.infer_batch(batch)
@@ -128,8 +131,12 @@ def validate(model: Model, loader: DataLoaderIAM, line_mode: bool) -> Tuple[floa
             dist = editdistance.eval(recognized[i], batch.gt_texts[i])
             num_char_err += dist
             num_char_total += len(batch.gt_texts[i])
+            inferResult = 'OK: ' if dist == 0 else 'ERR%d: ' % dist,  batch.gt_texts[i], ' ', recognized[i]
+            result.write('\n')
             print('[OK]' if dist == 0 else '[ERR:%d]' % dist, '"' + batch.gt_texts[i] + '"', '->',
                   '"' + recognized[i] + '"')
+
+            result.write(''.join(inferResult))
 
     # print validation result
     char_error_rate = num_char_err / num_char_total
