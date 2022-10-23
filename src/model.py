@@ -179,7 +179,8 @@ class Model:
         # go over all texts
         for batchElement, text in enumerate(texts):
             # convert to string of label (i.e. class-ids)
-            label_str = [self.char_list.index(c) for c in text]
+
+            label_str = [self.char_list.index(c) for c in text.split(',')]
             # sparse tensor must have size of max. label-string
             if len(label_str) > shape[1]:
                 shape[1] = len(label_str)

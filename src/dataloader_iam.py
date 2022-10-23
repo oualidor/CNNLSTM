@@ -3,7 +3,6 @@ import pickle
 import random
 from collections import namedtuple
 from typing import Tuple
-
 import cv2
 import lmdb
 import numpy as np
@@ -54,7 +53,7 @@ class DataLoaderIAM:
 
         bad_samples_reference = ['a01-117-05-02', 'r06-022-03-05']  # known broken images in IAM dataset
         # self.char_list, self.samples = self.loadAlifImages(data_dir, '/media/droualid/Bibliotheque/Doctorat/Data/ALiF/md_alif_train/')
-        self.char_list, self.samples = self.loadImagesMultiFolders(data_dir, bad_samples_reference)
+        self.char_list, self.samples = self.loadImages(data_dir, bad_samples_reference)
 
         # split into training and validation set: 95% - 5%
         split_idx = int(data_split * len(self.samples))
@@ -71,10 +70,11 @@ class DataLoaderIAM:
         # list of all chars in dataset
         self.char_list = sorted(list(self.char_list))
 
-    def loadImages(self, data_dir, bad_samples_reference):
+    @staticmethod
+    def loadImages(data_dir, bad_samples_reference):
         samples = []
         chars = set()
-        f = open('wordsToDraw.txt')
+        f = open('wordsEncoded.txt')
         i = 0
         for line in f:
             line = line.split(',')  # ignore empty and comment lines
@@ -97,19 +97,25 @@ class DataLoaderIAM:
             print(dirName)
             currentDir = data_dir + dirName + '/'
             i = 0
-            wordsFile = open('wordsToDraw.txt')
+            wordsFile = open('wordsEncoded.txt')
             for line in wordsFile:
-                line = line.split(',')  # ignore empty and comment lines
                 if not line or line[0] == '#':
                     continue
                 path = currentDir + str(i) + '.png'
                 text = ''.join(line)
                 text = text[0:len(text) - 1]
                 samples.append(Sample(text, path))
-                chars = chars.union(set(list(text)))
+                for char in text.split(','):
+                    chars.add(char)
                 i = i + 1
             wordsFile.close()
+        print('*****************************************************************')
+        print('*****************************************************************')
+        print('*****************************************************************')
+        # print(chars)
+        print(samples[0])
         return chars, samples
+
 
     @staticmethod
     def loadAlifImages(imgsDir, xmlDir):

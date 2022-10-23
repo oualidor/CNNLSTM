@@ -40,8 +40,14 @@ def write_summary(char_error_rates: List[float], word_accuracies: List[float], E
 
 
 def char_list_from_file() -> List[str]:
-    with open(FilePaths.fn_char_list) as f:
-        return list(f.read())
+    chars = []
+    print('//////////////')
+    f = open(FilePaths.fn_char_list)
+    for line in f:
+
+        chars.append(line[0:len(line)-1])
+    print(chars)
+    return chars
 
 
 def train(model: Model,
@@ -184,7 +190,9 @@ def main():
 
         # save characters and words
         with open(FilePaths.fn_char_list, 'w') as f:
-            f.write(''.join(char_list))
+            for char in char_list:
+                print(char + '///////////////////////')
+                f.write(char + '\n')
 
         with open(FilePaths.fn_corpus, 'w') as f:
             f.write(' '.join(loader.train_words + loader.validation_words))

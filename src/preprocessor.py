@@ -27,6 +27,8 @@ class Preprocessor:
 
     @staticmethod
     def _truncate_label(text: str, max_text_len: int) -> str:
+        return text
+
         """
         Function ctc_loss can't compute loss if it cannot find a mapping between text label and input
         labels. Repeat letters cost double because of the blank symbol needing to be inserted.
@@ -39,6 +41,7 @@ class Preprocessor:
             else:
                 cost += 1
             if cost > max_text_len:
+
                 return text[:i]
         return text
 
